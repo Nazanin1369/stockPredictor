@@ -21,3 +21,8 @@ models rose. Also, stock market changes over time (Barsky & De Long, 1992; Hende
 2011). New investment strategies and new technology were introduced, which made some of the old 
 models obsolete. Since financial literacy became higher, there are more market players than ever.
 However, for some of the old models cannot be easily adopted for the changes in stock market.
+
+The introduction to algorithms in trading definitely changed the stock market. Algorithms made it easy
+to react fast to certain events on the stock market. Machine learning algorithms also enabled analysts to
+create models for predicting prices of stocks much easier. Introduction of machine learning caused that
+new models can be developed based on the past data.
