@@ -12,3 +12,8 @@ def getDataFrame():
         list_.append(df)
     frame = pd.concat(list_)
     return frame;
+
+
+
+def getYahooDataFrame():
+    return  pd.read_csv('./data/YHOO_stock_data.csv',index_col=None, header=0, parse_dates=['Date'])
