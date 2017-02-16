@@ -45,6 +45,7 @@ class StockPredictor:
         data.fillna(method='ffill', inplace=True)
         self.data = data
 
+
     #preparedata call does the preprocessing of the loaded data
     #sequence length is a tuning parameter - this is the length of the sequence that will be trained on.
     # Too long and too short and the algorithms won't be able to find any trend - set as 5 days
@@ -211,7 +212,7 @@ class StockPredictor:
         for i in range(0, len(colmn) - self.step-self.maxlen):
             X.append(colmn[i: i + self.maxlen])
             y.append(colmn[i + self.step+self.maxlen])
-        #print('nb sequences:', len(X))
+        print('nb sequences:', len(X))
 
         #convert lists to np arrays
         X = np.array(X)
@@ -219,14 +220,14 @@ class StockPredictor:
 
         #convert to 3D and 2D tensors for processing by RNN
         X = np.reshape(X, X.shape + (1,))
+
         y = np.reshape(y, y.shape + (1,))
 
         print('X_train shape:', X.shape)
         print('X_test shape:', y.shape)
 
-        #print ("X and y", X[-1], y[-1])
-        X_train, X_test, y_train, y_test = train_test_split(X, y,
-                                                            test_size=0.25, random_state=42)
+        print ("X and y", X[-1], y[-1])
+        X_train, X_test, y_train, y_test = train_test_split(X, y,test_size=0.25, random_state=42)
 
         model = Sequential()
         model.add(LSTM(50,
@@ -241,7 +242,7 @@ class StockPredictor:
         # Compile model
         model.compile(loss='mean_absolute_error', optimizer='rmsprop')
 
-        model.fit(X_train, y_train, nb_epoch=150, batch_size=25, verbose=0)
+        model.fit(X_train, y_train, nb_epoch=150, batch_size=self.batch_size, verbose=0)
 
         predicttest = model.predict(X_test)
         predicttrain = model.predict(X_train)
