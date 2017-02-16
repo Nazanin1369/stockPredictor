@@ -49,7 +49,7 @@ class StockPredictor:
     #sequence length is a tuning parameter - this is the length of the sequence that will be trained on.
     # Too long and too short and the algorithms won't be able to find any trend - set as 5 days
     # by default, and this works pretty well
-    def prepareData(self, predictDate, metric = 'Adjusted Close', sequenceLength=5):
+    def prepareData(self, predictDate, metric = 'Adj_Close', sequenceLength=5):
 
         # number of days to predict ahead
         predictDate = dt.datetime.strptime(predictDate, "%Y-%m-%d")
