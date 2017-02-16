@@ -17,8 +17,7 @@ import matplotlib.pyplot as plt
 
 class StockPredictor:
 
-    def __init__(self, APIKey):
-        quandl.ApiConfig.api_key = APIKey
+    def __init__(self):
         self.tickerSymbol = ''
 
     #LoadData call queries the API, caching if necessary
@@ -59,7 +58,7 @@ class StockPredictor:
         #this pandas gets the number of business days ahead, within reason ( i.e. doesn't know about local market
         #public holidays, etc)
         self.numBdaysAhead = abs(np.busday_count(predictDate, endDate))
-        print "business days ahead", self.numBdaysAhead
+        print ("business days ahead", self.numBdaysAhead)
 
         self.sequenceLength = sequenceLength
         self.predictAhead = self.numBdaysAhead
@@ -105,12 +104,12 @@ class StockPredictor:
         label = tslag[labelCol]
         new_data = tslag[trainCols]
 
-        # print "NEW DATA", new_data.tail(1)
+        # print ("NEW DATA", new_data.tail(1))
         #scale the data for the Linear Regression, SVR and Neural Net
         self.scaler = preprocessing.StandardScaler().fit(new_data)
         scaled_data = pd.DataFrame(self.scaler.transform(new_data))
 
-        # print "SCALED DATA", scaled_data.tail(1)
+        # print ("SCALED DATA", scaled_data.tail(1))
         self.scaled_data = scaled_data
         self.label = label
 
@@ -126,8 +125,8 @@ class StockPredictor:
         grid.fit(X_train, y_train)
         predicttrain = grid.predict(X_train)
         predicttest = grid.predict(X_test)
-        print "R2 score for training set (Linear Regressor): {:.4f}.".format(r2_score(predicttrain, y_train))
-        print "R2 score for test set (Linear Regressor): {:.4f}.".format(r2_score(predicttest, y_test))
+        print ("R2 score for training set (Linear Regressor): {:.4f}.".format(r2_score(predicttrain, y_train)))
+        print ("R2 score for test set (Linear Regressor): {:.4f}.".format(r2_score(predicttest, y_test)))
         self.model = grid
 
     #predict Linear Regression
@@ -147,13 +146,13 @@ class StockPredictor:
 
         grid_obj = GridSearchCV(clf, param_grid=parameters, scoring=r2_scorer)
         grid_obj.fit(X_train, y_train)
-        print "best svr params", grid_obj.best_params_
+        print ("best svr params", grid_obj.best_params_)
 
         predicttrain = grid_obj.predict(X_train)
         predicttest = grid_obj.predict(X_test)
 
-        print "R2 score for training set (SVR): {:.4f}.".format(r2_score(predicttrain, y_train))
-        print "R2 score for test set (SVR): {:.4f}.".format(r2_score(predicttest, y_test))
+        print ("R2 score for training set (SVR): {:.4f}.".format(r2_score(predicttrain, y_train)))
+        print ("R2 score for test set (SVR): {:.4f}.".format(r2_score(predicttest, y_test)))
         self.model = grid_obj
 
     def predictSVR(self):
@@ -172,7 +171,7 @@ class StockPredictor:
         model.add(Dense(1, init='normal', activation='linear'))
 
         #this is handy to visualise the model
-        print model.summary()
+        print (model.summary())
 
         # Compile model
         model.compile(loss='mean_absolute_error', optimizer='rmsprop')
@@ -181,16 +180,16 @@ class StockPredictor:
         predicttest = model.predict(X_test)
         predicttrain = model.predict(X_train)
 
-        print "R2 score for training set (NN): {:.4f}.".format(r2_score(predicttrain, y_train))
-        print "R2 score for test set (NN): {:.4f}.".format(r2_score(predicttest, y_test))
+        print ("R2 score for training set (NN): {:.4f}.".format(r2_score(predicttrain, y_train)))
+        print ("R2 score for test set (NN): {:.4f}.".format(r2_score(predicttest, y_test)))
         self.model = model
 
 
     def predictNN(self):
         inputSeq = self.scaler.transform(self.final_row_unscaled)
-        print "inputseq", inputSeq
+        print ("inputseq", inputSeq)
         predicted = self.model.predict(inputSeq)[0][0]
-        print "Predicted", predicted
+        print ("Predicted", predicted)
         return predicted
 
 
@@ -198,7 +197,7 @@ class StockPredictor:
         #need unscaled data for the RNN
         colmn = self.data[self.metric]
         colmn = colmn.values
-        print "last 3 cols", colmn[-1]
+        print ("last 3 cols", colmn[-1])
         self.maxlen = 7
 
         #self.step = 1
@@ -222,10 +221,10 @@ class StockPredictor:
         X = np.reshape(X, X.shape + (1,))
         y = np.reshape(y, y.shape + (1,))
 
-        #print('X_train shape:', X.shape)
-        #print('X_test shape:', y.shape)
+        print('X_train shape:', X.shape)
+        print('X_test shape:', y.shape)
 
-        #print "X and y", X[-1], y[-1]
+        #print ("X and y", X[-1], y[-1])
         X_train, X_test, y_train, y_test = train_test_split(X, y,
                                                             test_size=0.25, random_state=42)
 
@@ -238,7 +237,7 @@ class StockPredictor:
                        return_sequences=False))
         model.add(Dense(1, init='normal', activation='linear'))
 
-        print model.summary()
+        print (model.summary())
         # Compile model
         model.compile(loss='mean_absolute_error', optimizer='rmsprop')
 
@@ -247,8 +246,8 @@ class StockPredictor:
         predicttest = model.predict(X_test)
         predicttrain = model.predict(X_train)
 
-        print "R2 score for training set (RNN): {:.4f}.".format(r2_score(predicttrain, y_train))
-        print "R2 score for test set (RNN): {:.4f}.".format(r2_score(predicttest, y_test))
+        print ("R2 score for training set (RNN): {:.4f}.".format(r2_score(predicttrain, y_train)))
+        print ("R2 score for test set (RNN): {:.4f}.".format(r2_score(predicttest, y_test)))
         self.model = model
 
 
