@@ -9,12 +9,15 @@ In this project, I applied supervised learning techniques for predicting a stock
 
 This project requires the following software and libraries:
 
-Python 2.7
-NumPy
-pandas
-matplotlib
-scikit-learn
-iPython Notebook
+* Python 2.7
+* NumPy
+* pandas
+* matplotlib
+* scikit-learn
+* iPython Notebook
+* Karas
+* TensorFlow
+* Yahoo! Finance
 
 ## Data Retrieval
 
