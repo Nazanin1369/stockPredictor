@@ -6,10 +6,10 @@ import StockPredictor
 
 ###### Entry Parameters #######
 startDate = '2010-01-01'
-endDate = '2016-12-30'
+endDate = '2013-08-19'
 ticker = 'GOOG'
 metric = 'Adj_Close'
-queryDate = '2016-11-29'
+queryDate = '2013-08-20'
 
 #Used for re-running: stops querying the API if we already have the data
 reloadData = False
@@ -119,6 +119,7 @@ sp.loadData(tickerSymbol, startDate, endDate, reloadData=reloadData, fileName=fi
 sp.prepareData(queryDate, metric=metric, sequenceLength=5)
 
 #Linear Regression first
+print("****** Linear Regression *******")
 sp.trainLinearRegression()
 predicted = sp.predictLinearRegression()
 print ("Actual:", actual, "Predicted by Linear Regression", predicted)
@@ -127,6 +128,7 @@ print ("Variance of return:{:.4f} %".format(varianceOfReturn(endDatePrice,actual
 
 
 #SVR is used next
+print("****** SVR *******")
 sp.trainSVR()
 predicted = sp.predictSVR()
 print ("Actual:", actual, "Predicted by SVR", predicted)
@@ -134,6 +136,7 @@ print ("Percent Difference:{:.4f} %".format(abs((actual-predicted)/actual)*100.0
 print ("Variance of return:{:.4f} %".format(varianceOfReturn(endDatePrice,actual,predicted)))
 
 #Then Neural Network
+print("****** Neural Network *******")
 sp.trainNN()
 predicted = sp.predictNN()
 print ("Actual:", actual, "Predicted by NNet", predicted)
@@ -142,6 +145,7 @@ print ("Variance of return:{:.4f} %".format(varianceOfReturn(endDatePrice,actual
 
 
 #finally, the RNN
+print("****** RNN *******")
 sp.trainRNN()
 predicted = sp.predictRNN()
 print ("end date price", endDatePrice)
