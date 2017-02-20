@@ -1,4 +1,24 @@
 
+## Project Overview
+
+Capstone Project: Build a stock price indicator
+
+In this project, I applied supervised learning techniques for predicting a stock price.
+
+## Software and Library Requirements
+
+This project requires the following software and libraries:
+
+* Python 2.7
+* NumPy
+* pandas
+* matplotlib
+* scikit-learn
+* iPython Notebook
+* Karas
+* TensorFlow
+* Yahoo! Finance
+
 ## Data Retrieval
 
 Yahoo Finance API is used to get stocks data for Google over period of seven years. 
