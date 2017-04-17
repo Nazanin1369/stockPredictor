@@ -37,8 +37,7 @@ def retrieveStockData():
     except:
         print ("Error")
 
-    print(data.head())
-     #Date and Symbol columns not required
+    #Date and Symbol columns not required
     data.drop(['Symbol'], axis = 1, inplace = True)
     pd.to_datetime(data['Date'])
     # make date as an index for pandas data frame
