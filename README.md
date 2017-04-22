@@ -1,7 +1,7 @@
 
 ## Project Overview
 
-In this project, I applied supervised learning techniques for predicting a stock price.
+Deep learning and stock market prediction
 
 ## Software and Library Requirements
 
