@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from numpy import newaxis
 from keras.layers.core import Dense, Activation, Dropout
 from keras.layers.recurrent import LSTM
-from keras.models import Sequential
+from keras.models import Sequential, load_model
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' #Hide messy TensorFlow warnings
 warnings.filterwarnings('ignore') #Hide messy Numpy warnings
@@ -104,3 +104,49 @@ def predict_sequences_multiple(model, data, window_size, prediction_len):
             curr_frame = np.insert(curr_frame, [window_size-1], predicted[-1], axis=0)
         prediction_seqs.append(predicted)
     return prediction_seqs
+
+
+
+def calculate_price_movement(ticker, seq_len):
+    global_start_time = time.time()
+    print('> Started Calculations...')
+    # Parameters
+    stockFile = './data/lstm/'+ticker+'.csv'
+    epochs = 20
+    batch_size=512
+    accs = []
+
+    print('> Loading data... ')
+    X_train, y_train, X_test, y_test = load_data(stockFile, seq_len, True)
+
+    model = load_model('./model/lstm.h5')
+
+    print('> LSTM trained, Testing model on validation set... ')
+
+    training_start_time = time.time()
+
+    hist = model.fit(
+        X_train,
+        y_train,
+        batch_size=batch_size,
+        nb_epoch=epochs,
+        validation_split=0.05,
+        verbose=0)
+
+    print('> Testing duration (s) : ', time.time() - training_start_time)
+
+    print('> Calculating Losses....')
+    for key, value in hist.history.items():
+        if(key == 'acc'):
+            accs = value
+
+    averageAccuracy = np.average(accs)
+
+    print('> Plotting full sequence prediction....')
+    predicted = predict_sequence_full(model, X_test, seq_len)
+
+    return predicted, averageAccuracy
+
+
+
+
