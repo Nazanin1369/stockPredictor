@@ -112,11 +112,11 @@ def run():
 	predictions = lstm.predict_sequences_multiple(model, X_test, seq_len, 50)
 	plot_results_multiple(predictions, y_test, 50)
 
-
 #Main Run Thread
 if __name__=='__main__':
 	#run()
 	predicted, averageAccuracy = lstm.calculate_price_movement('Google', 50)
-	print(predicted, averageAccuracy)
+	print('> Predicted Prices: {}'.format(predicted))
+	print('> Average Accuracy: {}'.format(averageAccuracy))
 
 
