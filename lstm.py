@@ -105,14 +105,6 @@ def predict_sequences_multiple(model, data, window_size, prediction_len):
         prediction_seqs.append(predicted)
     return prediction_seqs
 
-
-
-def denormalize(a):
-    '''
-    Reverts each sample back to predicted price
-    '''
-    return float(835.23999) * (float(a) + 1)
-
 def calculate_price_movement(ticker, seq_len):
     global_start_time = time.time()
     print('> Started Calculations...')
@@ -151,12 +143,7 @@ def calculate_price_movement(ticker, seq_len):
     print('> Predicting full sequence....')
     predicted = predict_sequence_full(model, X_test, seq_len)
 
-    print('> Denormalizing Predictions....')
-    denormalizer = np.vectorize(denormalize)
-
-    denormalized_predicted = denormalizer(predicted)
-
-    return denormalized_predicted, averageAccuracy
+    return predicted, averageAccuracy
 
 
 
