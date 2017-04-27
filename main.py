@@ -71,7 +71,7 @@ def run():
 	Main method for manual testing
 	'''
 	# Parameters
-	stockFile = './data/lstm/Google.csv'
+	stockFile = './data/lstm/GOOG.csv'
 	epochs = 20
 	seq_len = 50
 	batch_size=512
