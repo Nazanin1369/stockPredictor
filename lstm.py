@@ -10,7 +10,7 @@ from keras.layers.recurrent import LSTM
 from keras.models import Sequential
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' #Hide messy TensorFlow warnings
-warnings.filterwarnings("ignore") #Hide messy Numpy warnings
+warnings.filterwarnings('ignore') #Hide messy Numpy warnings
 
 def load_data(filename, seq_len, normalise_window):
     '''
@@ -45,7 +45,6 @@ def load_data(filename, seq_len, normalise_window):
 def normalise_windows(window_data):
     normalised_data = []
     for window in window_data:
-        window = window['Adj_Close']
         normalised_window = [((float(p) / float(window[0])) - 1) for p in window]
         normalised_data.append(normalised_window)
     return normalised_data
@@ -66,12 +65,15 @@ def build_model(layers):
 
     model.add(Dense(
         output_dim=layers[3]))
-    model.add(Activation("linear"))
+    model.add(Activation('linear'))
 
     start = time.time()
-    model.compile(loss="mse", optimizer="rmsprop")
-    print("> Compilation Time : ", time.time() - start)
-    print(model.summary())
+    print('> Compiling LSTM model....')
+
+    model.compile(loss='mse', optimizer='rmsprop', metrics=['mae', 'acc'])
+
+    print('> Compilation Time : ', time.time() - start)
+    #print(model.summary())
     return model
 
 def predict_point_by_point(model, data):
