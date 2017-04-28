@@ -16,12 +16,12 @@ import matplotlib
 # Global Variables
 predictedPrice={}
 seq_len  = 50
-readGains = True
+readGains = False
 
 def plotGains(strategies, numDays):
     gains = {}
     if readGains:
-        gains = pd.read_csv('gains.csv')
+        gains = pd.read_csv('./out/gains.csv')
         gains['gain'] = gains['gain'].apply(lambda x: x * 1000 )
         #print(gains.describe())
 
@@ -136,6 +136,12 @@ if __name__ == '__main__':
         print('> Predicting Microsoft prices...')
         msft_prediction, msft_acc = lstm.calculate_price_movement('MSFT', seq_len)
         print('MSFT acc', msft_acc)
+
+        msft_prediction_df = pd.DataFrame(msft_prediction)
+        msft_prediction_df.to_csv('msft.csv', index=False)
+
+        goog_prediction_df = pd.DataFrame(goog_prediction)
+        goog_prediction_df.to_csv('goog.csv', index=False)
 
         print('> Including accuracy in predictions...')
         goog_prediction = [a * goog_acc for a in goog_prediction]
