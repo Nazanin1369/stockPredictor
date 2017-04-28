@@ -15,7 +15,7 @@ import matplotlib
 
 # Global Variables
 predictedPrice={}
-seq_len  = 50
+seq_len  = 500
 readGains = False
 
 def plotGains(strategies, numDays):
@@ -129,11 +129,11 @@ if __name__ == '__main__':
     strategies['st4']={'GOOG' : 0.4, 'MSFT' :0.6}
 
     if(readGains == False):
-        print('> Predicting Google prices...')
+        print('> ** Predicting Google prices...')
         goog_prediction, goog_acc = lstm.calculate_price_movement('GOOG', seq_len)
         print('Google acc ' ,goog_acc )
 
-        print('> Predicting Microsoft prices...')
+        print('> ** Predicting Microsoft prices...')
         msft_prediction, msft_acc = lstm.calculate_price_movement('MSFT', seq_len)
         print('MSFT acc', msft_acc)
 
