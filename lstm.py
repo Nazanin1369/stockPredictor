@@ -70,7 +70,7 @@ def build_model(layers):
     start = time.time()
     print('> Compiling LSTM model....')
 
-    model.compile(loss='mse', optimizer='rmsprop', metrics=['mae', 'acc'])
+    model.compile(loss='mse', optimizer='rmsprop')
 
     print('> Compilation Time : ', time.time() - start)
     #print(model.summary())

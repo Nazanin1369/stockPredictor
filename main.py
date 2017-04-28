@@ -2,12 +2,13 @@ import lstm
 import time
 import matplotlib.pyplot as plt
 from keras.models import load_model
+from keras.utils import plot_model
 
 def plot_results(predicted_data, true_data, fileName):
 	'''
 	Plots prediction dots and true data
 	'''
-	fig = plt.figure(facecolor='white')
+	fig = plt.figure(facecolor='white', figsize=(20,10))
 	ax = fig.add_subplot(111)
 	ax.plot(true_data, label='True Data')
 	plt.plot(predicted_data, label='Prediction')
@@ -18,7 +19,7 @@ def plot_results_multiple(predicted_data, true_data, prediction_len):
 	'''
 	Plots multiple sequence predictions and true data
 	'''
-	fig = plt.figure(facecolor='white')
+	fig = plt.figure(facecolor='white', figsize=(30,10))
 	ax = fig.add_subplot(111)
 	ax.plot(true_data, label='True Data')
 	#Pad the list of predictions to shift it in the graph to it's correct start
@@ -65,15 +66,23 @@ def trainModel(newModel, epochs=1, seq_len=50):
 
 	return model
 
+class TestCallback():
+    def __init__(self, test_data):
+        self.test_data = test_data
+
+    def on_epoch_end(self, epoch, logs={}):
+        x, y = self.test_data
+        loss, acc = self.model.evaluate(x, y, verbose=0)
+        print('\nTesting loss: {}, acc: {}\n'.format(loss, acc))
 
 def run():
 	'''
 	Main method for manual testing
 	'''
 	# Parameters
-	stockFile = './data/lstm/MSFT.csv'
+	stockFile = './data/lstm/AMZN.csv'
 	epochs = 20
-	seq_len = 50
+	seq_len = 100
 	batch_size=512
 
 	print('> Loading data... ')
@@ -82,6 +91,8 @@ def run():
 
 	# Train and return the model
 	model = trainModel(False)
+
+	plot_model(model, to_file='model.png')
 
 	print('> LSTM trained, Testing model on validation set... ')
 
@@ -92,13 +103,15 @@ def run():
 	    y_train,
 	    batch_size=batch_size,
 	    nb_epoch=epochs,
-	    validation_split=0.05)
+	    validation_split=0.05,
+		validation_data=(X_test, y_test))
 
 	print('> Testing duration (s) : ', time.time() - training_start_time)
 
 	print('> Plotting Losses....')
 	plotMetrics(hist.history)
 
+	
 	print('> Plotting point by point prediction....')
 	predicted = lstm.predict_point_by_point(model, X_test)
 	plot_results(predicted, y_test, 'ppResults.jpg')

@@ -8,7 +8,6 @@ def retrieveStockData(tickerSymbol, startDate, endDate, fileName):
     Retrieves data from Yahoo! Finance API
     '''
     try:
-
         print('Retriving data for ticker _' + tickerSymbol + ' ...')
         historical = yahoo.Share(tickerSymbol).get_historical(startDate, endDate)
 
@@ -24,4 +23,5 @@ def retrieveStockData(tickerSymbol, startDate, endDate, fileName):
         print('Dataset could not be loaded. Is the dataset missing?')
 
 
-retrieveStockData('IBM', '1962-01-02', '2017-04-27', './data/lstm/IBM.csv')
+#retrieveStockData('IBM', '1962-01-02', '2017-04-27', './data/lstm/IBM.csv')
+retrieveStockData('AMZN', '1997-05-15', '2016-04-27', './data/lstm/AMZN.csv')
