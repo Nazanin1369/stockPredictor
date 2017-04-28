@@ -11,6 +11,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import lstm
+import matplotlib
 
 # Global Variables
 predictedPrice={}
@@ -21,9 +22,8 @@ def plotGains(strategies, numDays):
     gains = {}
     if readGains:
         gains = pd.read_csv('gains.csv')
-        print(gains.describe())
-        gains = gains.set_index('strategyName')
-        print(gains.head())
+        gains['gain'] = gains['gain'].apply(lambda x: x * 1000 )
+        #print(gains.describe())
 
         minGain = gains.min()
         print('> minimum Gain : ', minGain)
@@ -32,30 +32,13 @@ def plotGains(strategies, numDays):
         #print('> number of negs', negs)
 
         if(negs < gains.size and negs > 0.0):
-            gains['gain'] = gains['gain'].apply(lambda x: (x - minGain)* 100 )
+            gains['gain'] = gains['gain'].apply(lambda x: (x - minGain) )
         elif (negs == gains.size):
-            gains['gain'] = gains['gain'].apply(lambda x: (x * (-1))* 100 )
+            gains['gain'] = gains['gain'].apply(lambda x: (x * (-1)) )
         else:
             print('All positive')
 
-        print(gains.head())
-
-        plt.figure()
-        ax = gains.plot.bar()
-        plt.axhline(0, color='k')
-        ax.set_xlabel("Strategy", fontsize=12)
-        ax.set_ylabel("Gain", fontsize=12)
-        plt.savefig('strategyGainDataFrame.png')
-
-        plt.figure()
-        gains.plot.hist(orientation='horizontal', cumulative=True, color='k', alpha=0.5, bins=1, rwidth=0.2)
-        plt.savefig('strategyhistGainDataFrame.png')
-
-        plt.figure()
-        gains.plot.box()
-        plt.savefig('strategyBox.png')
-
-
+        plotStrategies(gains)
     else:
 
         for strategy in strategies:
@@ -74,6 +57,69 @@ def calculateGains(strategy, numDays):
     for k in predictedPrice:
         gain = gain + float(predictedPrice[k][numDays-1])*float(strategy[k])
     return gain
+
+def plotStrategies(df):
+        font = {'family' : 'normal',
+        'weight' : 'bold',
+        'size'   : 18}
+
+        matplotlib.rc('font', **font)
+        # Create the general blog and the "subplots" i.e. the bars
+        f, ax1 = plt.subplots(1, figsize=(10,10))
+
+        # Set the bar width
+        bar_width = 0.5
+
+        # positions of the left bar-boundaries
+        bar_l = [i+1 for i in range(len(df['MSFT']))]
+
+        # positions of the x-axis ticks (center of the bars as bar labels)
+        tick_pos = [i+(bar_width/2)-0.25 for i in bar_l]
+
+        df['MSFT_tot'] = df['MSFT']* df['gain'] * 100
+        df['GOOG_tot'] = df['GOOG']* df['gain'] * 100
+
+        # Create a bar plot, in position bar_1
+        ax1.bar(bar_l,
+                # using the MSFT_tot data
+                df['MSFT_tot'],
+                # set the width
+                width=bar_width,
+                # with the label MSFT
+                label='MSFT',
+                # with alpha 0.5
+                alpha=0.8,
+                # with color
+                color='#48B0F7')
+
+        # Create a bar plot, in position bar_1
+        ax1.bar(bar_l,
+                # using the GOOG data
+                df['GOOG_tot'],
+                # set the width
+                width=bar_width,
+                # with MSFT_tot on the bottom
+                bottom=df['MSFT_tot'],
+                # with the label GOOG
+                label='GOOG',
+                # with alpha 0.5
+                alpha=0.8,
+                # with color
+                color='#F55753')
+
+
+        # set the x ticks with strategyName
+        plt.xticks(tick_pos, df['strategyName'])
+        ax1.axes.yaxis.set_ticklabels([])
+
+        # Set the label and legends
+        ax1.set_ylabel("Rank")
+        ax1.set_xlabel("Strategy")
+        plt.legend(loc='upper right')
+
+        # Set a buffer around the edge
+        plt.xlim([min(tick_pos)-bar_width, max(tick_pos)+bar_width])
+        plt.savefig('strategiesRank.png')
 
 if __name__ == '__main__':
     strategies = {}

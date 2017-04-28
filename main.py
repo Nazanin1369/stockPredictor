@@ -2,7 +2,6 @@ import lstm
 import time
 import matplotlib.pyplot as plt
 from keras.models import load_model
-from keras.utils import plot_model
 
 def plot_results(predicted_data, true_data, fileName):
 	'''
@@ -66,22 +65,13 @@ def trainModel(newModel, epochs=1, seq_len=50):
 
 	return model
 
-class TestCallback():
-    def __init__(self, test_data):
-        self.test_data = test_data
-
-    def on_epoch_end(self, epoch, logs={}):
-        x, y = self.test_data
-        loss, acc = self.model.evaluate(x, y, verbose=0)
-        print('\nTesting loss: {}, acc: {}\n'.format(loss, acc))
-
 def run():
 	'''
 	Main method for manual testing
 	'''
 	# Parameters
-	stockFile = './data/lstm/AMZN.csv'
-	epochs = 20
+	stockFile = './data/lstm/GOOG.csv'
+	epochs = 1
 	seq_len = 100
 	batch_size=512
 
@@ -90,9 +80,9 @@ def run():
 	X_train, y_train, X_test, y_test = lstm.load_data(stockFile, seq_len, True)
 
 	# Train and return the model
-	model = trainModel(False)
+	model = trainModel(True)
 
-	plot_model(model, to_file='model.png')
+	#plot_model(model, to_file='model.png')
 
 	print('> LSTM trained, Testing model on validation set... ')
 
@@ -111,7 +101,7 @@ def run():
 	print('> Plotting Losses....')
 	plotMetrics(hist.history)
 
-	
+
 	print('> Plotting point by point prediction....')
 	predicted = lstm.predict_point_by_point(model, X_test)
 	plot_results(predicted, y_test, 'ppResults.jpg')
