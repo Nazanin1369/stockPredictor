@@ -24,10 +24,8 @@ def plotGains(strategies, numDays):
 
     width = 1/1.5
 
-    plt.bar(x, gains.values(),width, color='blue')
-    width = .35
+    bar_list = plt.bar(x, gains.values(),width, color=['#0DAD9E', '#6D5CAE', '#48B0F7', '#F8D053'])
 
-    plt.bar(x, gains.values(), width=width)
     plt.savefig('strategyGain.png')
 
 
@@ -59,8 +57,11 @@ if __name__ == '__main__':
     predictedPrice['GOOG'] = goog_prediction
     predictedPrice['MSFT'] = msft_prediction
 
-    strategies['harshal']= {'GOOG':0.5,'MSFT' : 0.5}
-    strategies['naz']={'GOOG' : 0.2, 'MSFT' :0.8}
+    strategies['st1']= {'GOOG':0.5,'MSFT' : 0.5}
+    strategies['st2']={'GOOG' : 0.2, 'MSFT' :0.8}
+    strategies['st3']= {'GOOG':0.9,'MSFT' : 0.1}
+    strategies['st4']={'GOOG' : 0.4, 'MSFT' :0.6}
+
     plotGains(strategies, seq_len)
 
 
