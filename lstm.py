@@ -128,8 +128,7 @@ def calculate_price_movement(ticker, seq_len):
         y_train,
         batch_size=batch_size,
         nb_epoch=epochs,
-        validation_split=0.05,
-        verbose=0)
+        validation_split=0.05)
 
     print('> Testing duration (s) : ', time.time() - training_start_time)
 
@@ -139,6 +138,13 @@ def calculate_price_movement(ticker, seq_len):
             accs = value
 
     averageAccuracy = np.average(accs)
+
+    metrics = model.evaluate(X_test, y_test)
+
+    for metric_i in range(len(model.metrics_names)):
+        metric_name = model.metrics_names[metric_i]
+        metric_value = metrics[metric_i]
+        print('{}: {}'.format(metric_name, metric_value))
 
     print('> Predicting full sequence....')
     predicted = predict_sequence_full(model, X_test, seq_len)

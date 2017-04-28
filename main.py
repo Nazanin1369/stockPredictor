@@ -71,7 +71,7 @@ def run():
 	Main method for manual testing
 	'''
 	# Parameters
-	stockFile = './data/lstm/GOOG.csv'
+	stockFile = './data/lstm/MSFT.csv'
 	epochs = 20
 	seq_len = 50
 	batch_size=512
@@ -114,9 +114,9 @@ def run():
 
 #Main Run Thread
 if __name__=='__main__':
-	#run()
-	predicted, averageAccuracy = lstm.calculate_price_movement('Google', 50)
-	print('> Predicted Prices: {}'.format(predicted))
-	print('> Average Accuracy: {}'.format(averageAccuracy))
+	run()
+	#predicted, averageAccuracy = lstm.calculate_price_movement('Google', 50)
+	#print('> Predicted Prices: {}'.format(predicted))
+	#print('> Average Accuracy: {}'.format(averageAccuracy))
 
 

@@ -24,7 +24,7 @@ def plotGains(strategies, numDays):
 
     width = 1/1.5
 
-    bar_list = plt.bar(x, gains.values(),width, color=['#0DAD9E', '#6D5CAE', '#48B0F7', '#F8D053'])
+    bar_list = plt.bar(x, gains.values(),width, color=['b','g','r', 'c'])
 
     plt.savefig('strategyGain.png')
 
