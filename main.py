@@ -92,8 +92,7 @@ def run():
 	    y_train,
 	    batch_size=batch_size,
 	    nb_epoch=epochs,
-	    validation_split=0.05,
-		verbose=0)
+	    validation_split=0.05)
 
 	print('> Testing duration (s) : ', time.time() - training_start_time)
 
@@ -115,8 +114,5 @@ def run():
 #Main Run Thread
 if __name__=='__main__':
 	run()
-	#predicted, averageAccuracy = lstm.calculate_price_movement('Google', 50)
-	#print('> Predicted Prices: {}'.format(predicted))
-	#print('> Average Accuracy: {}'.format(averageAccuracy))
 
 

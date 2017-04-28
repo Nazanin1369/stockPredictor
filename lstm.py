@@ -110,7 +110,7 @@ def calculate_price_movement(ticker, seq_len):
     print('> Started Calculations...')
     # Parameters
     stockFile = './data/lstm/'+ticker+'.csv'
-    epochs = 20
+    epochs = 1
     batch_size=512
     accs = []
 
