@@ -1,154 +1,120 @@
-import yahoo_finance as yahoo
-import pandas as pd
-import numpy as np
-import StockPredictor
+import lstm
+import time
+import matplotlib.pyplot as plt
+from keras.models import load_model
 
+def plot_results(predicted_data, true_data, fileName):
+	'''
+	Plots prediction dots and true data
+	'''
+	fig = plt.figure(facecolor='white', figsize=(20,10))
+	ax = fig.add_subplot(111)
+	ax.plot(true_data, label='True Data')
+	plt.plot(predicted_data, label='Prediction')
+	plt.legend()
+	plt.savefig(fileName)
 
-###### Entry Parameters #######
-startDate = '2010-01-01'
-endDate = '2013-08-19'
-ticker = 'GOOG'
-metric = 'Adj_Close'
-queryDate = '2013-08-20'
+def plot_results_multiple(predicted_data, true_data, prediction_len):
+	'''
+	Plots multiple sequence predictions and true data
+	'''
+	fig = plt.figure(facecolor='white', figsize=(30,10))
+	ax = fig.add_subplot(111)
+	ax.plot(true_data, label='True Data')
+	#Pad the list of predictions to shift it in the graph to it's correct start
+	for i, data in enumerate(predicted_data):
+		padding = [None for p in range(i * prediction_len)]
+		plt.plot(padding + data, label='Prediction')
+		plt.legend()
+		plt.savefig('multipleResults.jpg')
 
-#Used for re-running: stops querying the API if we already have the data
-reloadData = False
+def plotMetrics(history):
+	'''
+	Plots loss and MSE during epochs
+	'''
+	losses = []
+	mses = []
+	for key, value in history.items():
+		if(key == 'loss'):
+			losses = value
+	plt.figure(figsize=(6, 3))
+	plt.plot(losses)
+	plt.ylabel('error')
+	plt.xlabel('iteration')
+	plt.title('testing error over time')
+	plt.savefig('losses.png')
 
-#Stock Data- first step is to obtain the list of stocks, and then select a stock to run through machine learning
-fileName = '../data/stocksData.csv'
-###############################
+def trainModel(newModel, epochs=1, seq_len=50):
+	'''
+	Trains and saves model
+	'''
+	if newModel:
+		global_start_time = time.time()
 
-# returive stock data using yahoo Finance API and return a dataFrame
-def retrieveStockData():
-    try:
-        if reloadData:
-            #get data from yahoo finance fo tickerSymbol
-            historical = yahoo.Share(ticker).get_historical(startDate, endDate)
-            data = pd.DataFrame(historical)
+		print('> Data Loaded. Compiling LSTM model...')
 
-            # save as CSV to stop blowing up their API
-            data.to_csv(fileName, index=False, parse_dates=['Date'])
+		model = lstm.build_model([1, 50, 100, 1])
 
-            # save then reload as the yahoo finance date doesn't load right in Pandas
-            data = pd.read_csv(fileName)
-        else:
-            # read the existing csv
-            data = pd.read_csv(fileName)
-    except:
-        print ("Error")
+		model.save('./model/lstm.h5')
 
-    #Date and Symbol columns not required
-    data.drop(['Symbol'], axis = 1, inplace = True)
-    pd.to_datetime(data['Date'])
-    # make date as an index for pandas data frame
-    #data.set_index('Date',inplace=True)
-    #Forward and backfll blank data, better option for this dataset than dropping nulls
-    data.fillna(method='ffill', inplace=True)
-    data.fillna(method='bfill', inplace=True)
-    return data
+		print('> Training duration (s) : ', time.time() - global_start_time)
+	else:
+		print('> Data Loaded. Loading LSTM model...')
 
+		model = load_model('./model/lstm.h5')
 
-data = retrieveStockData()
+	return model
 
-#Forward and backfll blank data, better option for this dataset than dropping nulls
-data.fillna(method='ffill', inplace=True)
-data.fillna(method='bfill', inplace=True)
+def run():
+	'''
+	Main method for manual testing
+	'''
+	# Parameters
+	stockFile = './data/lstm/IBM.csv'
+	epochs =50
+	seq_len = 100
+	batch_size=512
 
-#date column not required
-data = data.drop('Date', 1)
+	print('> Loading data... ')
 
-#whats of interest here is the percentage change from one day to the next
-data = data.pct_change()
+	X_train, y_train, X_test, y_test = lstm.load_data(stockFile, seq_len, True)
 
-data.fillna(method='ffill', inplace=True)
-data.fillna(method='bfill', inplace=True)
+	# Train and return the model
+	model = trainModel(True)
 
-#locate number of outliers for each column, outlier being 1.5 IQR up or down from upper or lower quartile
-outliers = pd.DataFrame(index=data.index)
-outliers = pd.DataFrame(np.where((data > 1.5 * ((data.quantile(0.75) - data.quantile(0.25)) + data.quantile(0.75)))
-                                 | (data < 1.5 * (data.quantile(0.25) - (data.quantile(0.75)) - data.quantile(0.25))),
-                                 1, 0), columns=data.columns)
+	#plot_model(model, to_file='model.png')
 
+	print('> LSTM trained, Testing model on validation set... ')
 
-#transpose the describe so that columns can be added
-res = data.describe().transpose()
+	training_start_time = time.time()
 
-res['variance'] = data.var()
-res['outliers'] = outliers.sum()
-res['mean_x_outliers'] = (1/res['outliers'])*res['mean']
+	hist = model.fit(
+	    X_train,
+	    y_train,
+	    batch_size=batch_size,
+	    nb_epoch=epochs,
+	    validation_split=0.05,
+		validation_data=(X_test, y_test))
 
-print (res.sort_values(by=['mean_x_outliers'],ascending=[False]))
+	print('> Testing duration (s) : ', time.time() - training_start_time)
 
-print ("SELECTED STOCK", res.sort_values(by=['mean_x_outliers'],ascending=[False]).transpose().keys()[0])
+	print('> Plotting Losses....')
+	plotMetrics(hist.history)
 
-#now we have the selected stock, play ball.
-tickerSymbol = res.sort_values(by=['mean_x_outliers'], ascending=[False]).transpose().keys()[0]
+	print('> Plotting point by point prediction....')
+	predicted = lstm.predict_point_by_point(model, X_test)
+	plot_results(predicted, y_test, 'ppResults.jpg')
 
+	print('> Plotting full sequence prediction....')
+	predicted = lstm.predict_sequence_full(model, X_test, seq_len)
+	plot_results(predicted, y_test, 'sResults.jpg')
 
-#backtest - query the data, and then query the API to see how close it was to the correct value
-fileName = "../data/backTest.csv"
-if reloadData:
-    data = pd.DataFrame(yahoo.Share(ticker).get_historical(startDate, endDate))
-    # save as CSV to stop blowing up their API
-    data.to_csv(fileName, index=False)
-    # save then reload as the qandl date doesn't load right in Pandas
-    data = pd.read_csv(fileName)
-else:
-    data = pd.read_csv(fileName)
+	print('> Plotting multiple sequence prediction....')
+	predictions = lstm.predict_sequences_multiple(model, X_test, seq_len, 50)
+	plot_results_multiple(predictions, y_test, 50)
 
-#fetch the actual price so that we can compare with what was predicted
-actual = data[metric][data['Date'] == queryDate].values[0]
-print("Actual price at date of query", actual)
-#the endDatePrice is the price at the end of the data - used for comparison
-endDatePrice = data[metric][data['Date'] == endDate].values[0]
+#Main Run Thread
+if __name__=='__main__':
+	run()
 
-#function to define the 'worthiness' of the trade, i.e. risk vs reward.
-# Difference in expected return vs actual return on investment.
-def varianceOfReturn(endPrice, actualPrice, predictedPrice):
-    t1 = abs(actualPrice- endPrice)
-    p1 = abs(predictedPrice-actualPrice)
-    return (p1/t1)*100.0
-
-#create new stock predictor.  Argument as placeholder for future expansion
-sp = StockPredictor.StockPredictor()
-
-#loadData will query the Qandl API with the parameters
-sp.loadData(tickerSymbol, startDate, endDate, reloadData=reloadData, fileName=fileName)
-#preparedata does the preprocessing
-sp.prepareData(queryDate, metric=metric, sequenceLength=5)
-
-#Linear Regression first
-print("****** Linear Regression *******")
-sp.trainLinearRegression()
-predicted = sp.predictLinearRegression()
-print ("Actual:", actual, "Predicted by Linear Regression", predicted)
-print ("Percent Difference:{:.4f} %".format(abs((actual-predicted)/actual)*100.0))
-print ("Variance of return:{:.4f} %".format(varianceOfReturn(endDatePrice,actual,predicted)))
-
-
-#SVR is used next
-print("****** SVR *******")
-sp.trainSVR()
-predicted = sp.predictSVR()
-print ("Actual:", actual, "Predicted by SVR", predicted)
-print ("Percent Difference:{:.4f} %".format(abs((actual-predicted)/actual)*100.0))
-print ("Variance of return:{:.4f} %".format(varianceOfReturn(endDatePrice,actual,predicted)))
-
-#Then Neural Network
-print("****** Neural Network *******")
-sp.trainNN()
-predicted = sp.predictNN()
-print ("Actual:", actual, "Predicted by NNet", predicted)
-print ("Percent Difference:{:.4f} %".format(abs((actual-predicted)/actual)*100.0))
-print ("Variance of return:{:.4f} %".format(varianceOfReturn(endDatePrice,actual,predicted)))
-
-
-#finally, the RNN
-print("****** RNN *******")
-sp.trainRNN()
-predicted = sp.predictRNN()
-print ("end date price", endDatePrice)
-print ("Actual:", actual, "Predicted by RNN", predicted)
-print ("Percent Difference:{:.4f} %".format(abs((actual-predicted)/actual)*100.0))
-print ("Variance of return:{:.4f} %".format(varianceOfReturn(endDatePrice,actual,predicted)))
 
