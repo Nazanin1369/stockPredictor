@@ -28,10 +28,14 @@ def load_data(filename, seq_len, normalise_window):
         result = normalise_windows(result)
 
     result = np.array(result)
+    print('> Result shape: ', result.shape[0])
 
-    row = round(0.9 * result.shape[0])
+    row = round(0.75 * result.shape[0])
+    print('> row: ', row)
+
     train = result[:int(row), :]
     np.random.shuffle(train)
+
     x_train = train[:, :-1]
     y_train = train[:, -1]
     x_test = result[int(row):, :-1]
@@ -39,6 +43,11 @@ def load_data(filename, seq_len, normalise_window):
 
     x_train = np.reshape(x_train, (x_train.shape[0], x_train.shape[1], 1))
     x_test = np.reshape(x_test, (x_test.shape[0], x_test.shape[1], 1))
+
+    print('> X_train shape: ', x_train.shape)
+    print('> X_test shape: ', x_test.shape)
+    print('> y_train shape: ', y_train.shape)
+    print('> y_test shape: ', y_test.shape)
 
     return [x_train, y_train, x_test, y_test]
 
@@ -50,27 +59,31 @@ def normalise_windows(window_data):
     return normalised_data
 
 def build_model(layers):
+
     model = Sequential()
 
     model.add(LSTM(
         input_dim=layers[0],
         output_dim=layers[1],
         return_sequences=True))
+
     model.add(Dropout(0.2))
 
     model.add(LSTM(
         layers[2],
         return_sequences=False))
+
     model.add(Dropout(0.2))
 
     model.add(Dense(
         output_dim=layers[3]))
-    model.add(Activation('linear'))
+
+    model.add(Activation('sigmoid'))
 
     start = time.time()
     print('> Compiling LSTM model....')
 
-    model.compile(loss='mse', optimizer='rmsprop')
+    model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
 
     print('> Compilation Time : ', time.time() - start)
     #print(model.summary())
