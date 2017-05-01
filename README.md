@@ -1,7 +1,7 @@
 
 ## Project Overview
 
-Stock market prediction using LSTM
+Stock market movement long-term prediction using LSTM
 
 ## Software and Library Requirements
 
