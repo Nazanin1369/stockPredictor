@@ -1,7 +1,7 @@
 
 ## Project Overview
 
-Stock market movement prediction using LSTM Deep Neural Networks.
+Stock market movement prediction using LSTM Deep Neural Networks and machine learning algorithms
 
 ## Software and Library Requirements
 
