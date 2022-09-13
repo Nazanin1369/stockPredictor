@@ -1,7 +1,8 @@
 
 ## Project Overview
 
-Stock market movement prediction using LSTM Deep Neural Networks and machine learning algorithms
+Stock market movement prediction using LSTM Deep Neural Networks and machine learning algorithms. 
+<< This predictions are not accurate and are not intended to use for personal investment decision makings. >> 
 
 ## Software and Library Requirements
 
